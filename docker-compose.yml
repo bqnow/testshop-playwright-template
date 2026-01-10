@@ -1,6 +1,5 @@
-version: '3.8'
-
 services:
+
   # The Webshop Application
   # In this template, we point to the expected Docker image of the main app
   app:
