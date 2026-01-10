@@ -1,78 +1,94 @@
 # Playwright E2E Test Template 🎭
 
-## Einleitung
-Willkommen im offiziellen Playwright-Template für den **TestShop**. Dieses Projekt dient als professionelle Referenzarchitektur für automatisierte E2E-Tests.
+Willkommen in deiner neuen E2E-Testumgebung! Dieses Repository ist deine Basis für die Automatisierung des **TestShops**. Es bietet eine industrietaugliche Architektur (Page Object Model), professionelles Reporting (Allure) und volle Flexibilität für verschiedene Testumgebungen.
 
 ---
 
-## 1. Quick Start (Schnelleinstieg)
+## 🛠️ Phase 1: Vorbereitung (Voraussetzungen)
 
-Dieses Template ist so vorkonfiguriert, dass es sofort gegen die Live-Vercel-Instanz des Shops testet.
+Bevor du mit dem Testen startest, musst du deinen Arbeitsplatz einrichten.
+
+### 1. IDE (Dein Arbeitsplatz)
+Wir empfehlen **Google Antigravity** oder **VS Code**. Hier wirst du deinen Test-Code schreiben und ausführen.
+
+### 2. Node.js (Die "Maschine")
+Playwright basiert auf Node.js.
+*   Lade die **LTS Version** von [nodejs.org](https://nodejs.org/) herunter und installiere sie.
+*   Prüfe die Installation im Terminal: `node -v` (sollte v18 oder höher sein).
+
+### 3. Git (Versionskontrolle)
+Du brauchst Git, um deinen Code zu speichern und hochzuladen.
+*   Installation: [git-scm.com](https://git-scm.com/)
+
+### 4. Docker (Optionale CI-Simulation)
+Um Tests in einer isolierten Linux-Umgebung zu simulieren, installiere [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+---
+
+## 🚀 Phase 2: Projekt-Setup
+
+Öffne dieses Repository in deiner IDE und führe im Terminal folgende Schritte aus:
 
 1.  **Abhängigkeiten installieren:**
     ```bash
     npm install
+    ```
+2.  **Browser-Engines installieren:**
+    ```bash
     npx playwright install --with-deps
-    ```
-2.  **Tests ausführen (Standard gegen Vercel):**
-    ```bash
-    npm run test:e2e
-    ```
-3.  **Vollständiger Zyklus (inkl. Allure Report):**
-    ```bash
-    npm run test:full-cycle
     ```
 
 ---
 
-## 2. Flexibles Testen (Umgebungen)
+## 🏃 Phase 3: Tests ausführen
 
-Eines der wichtigste Features für Consultants ist die Möglichkeit, **überall** zu testen, ohne den Code zu ändern. Wir nutzen dafür Umgebungsvariablen.
+Dieses Template ist so vorkonfiguriert, dass es sofort gegen die Live-Instanz des Shops testet:
+👉 [https://testshop-dusky.vercel.app](https://testshop-dusky.vercel.app)
 
-### 2.1 Direkt via Kommandozeile (Ad-hoc)
-Du kannst die Ziel-URL bei jedem Befehl einfach mitgeben:
+### Ausführungs-Modi
+*   **Standard (Headless):** `npm run test:e2e` (Schnell, ohne sichtbare Fenster).
+*   **Mit Bild (Headed):** `HEADLESS=false npm run test:e2e` (Gut für Debugging).
+*   **Full Cycle:** `npm run test:full-cycle` (Führt Tests aus, generiert Berichte und öffnet das Dashboard automatisch).
+
+---
+
+## 🌍 Phase 4: Flexibles Testen (Umgebungs-Variablen)
+
+Du kannst die Ziel-URL bei jedem Befehl einfach mitgeben, um gegen andere Instanzen (z.B. deinen lokalen Shop) zu testen:
+
 ```bash
+# Testen gegen lokalen Shop
 BASE_URL=http://localhost:3000 npm run test:e2e
+
+# Testen gegen eine QA-Umgebung
 BASE_URL=https://qa.meine-app.de npm run test:e2e
 ```
 
-### 2.2 Über Konfigurations-Profile (`TEST_ENV`)
-Wir haben vordefinierte Profile im Ordner `config/`. Nutze die Kurzform-Befehle:
-*   **QA:** `npm run test:qa` (Nutzt `config/.env.qa`)
-*   **Staging:** `npm run test:staging` (Nutzt `config/.env.staging`)
-*   **Prod:** `npm run test:prod` (Nutzt `config/.env.prod`)
-
-### 2.3 Lokale Overrides (`.env.local`)
-Erstelle eine Datei `config/.env.local` (wird von Git ignoriert), um deine persönlichen Einstellungen zu speichern:
-```bash
-BASE_URL=http://localhost:3000
-HEADLESS=false
-```
+**Config-Profile:** Nutze `npm run test:qa` oder `npm run test:prod`, um vordefinierte Einstellungen aus dem `config/`-Ordner zu laden.
 
 ---
 
-## 3. Architektur & Best Practices
+## 📊 Phase 5: Reporting & Analyse
 
-*   **Page Object Model (POM):** Logik und Selektoren sind in den Klassen unter `pages/` getrennt.
-*   **Fixtures:** Automatisches Setup der Pages in `fixtures/base-test.ts`.
-*   **Data-Driven:** Dynamische Testdaten via `@faker-js/faker` in `data/test-data.ts`.
+Nach den Tests stehen dir zwei Reports zur Verfügung:
 
----
-
-## 4. Infrastruktur & Docker
-
-Du kannst die gesamte Test-Suite in einem isolierten Linux-Container ausführen. Dies simuliert exakt die Bedingungen in der CI-Pipeline.
-
-**Tests in Docker starten:**
-```bash
-docker compose up --build
-```
-*Der Container startet automatisch die App (via Vercel/Image) und führt die Tests in Chromium und Firefox aus.*
+1.  **Allure Dashboard:** `npm run report:open` (Wunderschöne Graphen und Historie).
+2.  **Playwright HTML:** Öffne `reporting/playwright/index.html` (Videos, Screenshots und Traces bei Fehlern).
 
 ---
 
-## 5. Reporting
+## 🏗️ Architektur (Der "Rote Faden")
 
-Ergebnisse werden im Ordner `reporting/` gesammelt:
-*   **Allure Report:** Profi-Dashboard mit Historie (`npm run report:open`).
-*   **Playwright HTML:** Technisches Debugging inkl. Videos & Traces (`reporting/playwright/index.html`).
+Damit dein Code wartbar bleibt, halten wir uns an diese Regeln:
+*   **Page Object Model (POM):** Jede Seite wird durch eine Klasse in `pages/` abgebildet. Ändert sich ein Button-Layout, musst du es nur an einer Stelle im POM korrigieren.
+*   **Data-Driven:** Testdaten kommen aus dem `data/`-Ordner oder werden via `@faker-js/faker` generiert.
+*   **Fixtures:** Seiten werden automatisch in die Tests injiziert (`fixtures/base-test.ts`), was den Code extrem sauber hält.
+
+---
+
+## 🌿 Dein Workflow als Consultant
+
+1.  **Branch erstellen:** `git checkout -b feature/mein-name-tests`.
+2.  **Tests schreiben:** Nutze existierende Tests in `e2e/` als Vorlage.
+3.  **Lokal validieren:** Nutze `npm run test:full-cycle`.
+4.  **Committen & Pushen:** Teile deine Ergebnisse mit dem Team!
