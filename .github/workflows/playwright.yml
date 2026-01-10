@@ -1,0 +1,25 @@
+name: Playwright E2E Tests (Standalone)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run Tests in Docker
+      run: docker compose up --build --exit-code-from playwright
+
+    - name: Upload Reporting Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: reporting-artifacts
+        path: reporting/
+        retention-days: 30

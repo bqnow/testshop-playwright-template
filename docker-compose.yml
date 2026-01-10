@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # The Webshop Application
+  # In this template, we point to the expected Docker image of the main app
+  app:
+    image: ghcr.io/bqnow/testshop:latest
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # The Playwright Test Runner
+  playwright:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      - BASE_URL=http://app:3000
+      - CI=true
+      - SKIP_WEBKIT=true
+    volumes:
+      - ./reporting:/app/reporting

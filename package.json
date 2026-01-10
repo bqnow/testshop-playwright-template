@@ -1,0 +1,26 @@
+{
+    "name": "testshop-playwright-template",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Standalone Playwright E2E Test Suite for TestShop",
+    "scripts": {
+        "test:e2e": "playwright test",
+        "test:qa": "TEST_ENV=qa BASE_URL=https://qa.testshop.com playwright test",
+        "test:staging": "TEST_ENV=staging BASE_URL=https://staging.testshop.com playwright test",
+        "test:prod": "TEST_ENV=prod BASE_URL=https://testshop.com playwright test",
+        "test:full-cycle": "npm run report:history && npm run test:e2e || true && npm run report:generate && npm run report:archive && npm run report:open",
+        "report:history": "mkdir -p reporting/allure-results/history && cp -r reporting/allure-report/history/* reporting/allure-results/history/ || true",
+        "report:generate": "allure generate reporting/allure-results -o reporting/allure-report --clean",
+        "report:open": "allure open reporting/allure-report",
+        "report:archive": "mkdir -p reporting/archive && cp -r reporting/allure-report reporting/archive/report-$(date +%Y%m%d-%H%M%S)",
+        "report:clean": "rm -rf reporting/allure-results reporting/allure-report reporting/playwright"
+    },
+    "devDependencies": {
+        "@faker-js/faker": "^10.2.0",
+        "@playwright/test": "^1.57.0",
+        "allure-commandline": "^2.36.0",
+        "allure-playwright": "^3.4.4",
+        "dotenv": "^17.2.3",
+        "typescript": "^5"
+    }
+}
