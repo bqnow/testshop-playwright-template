@@ -41,9 +41,10 @@ export default defineConfig({
     use: {
         baseURL: process.env.BASE_URL || 'http://localhost:3000',
         trace: 'on-first-retry',
-        screenshot: 'attempt-with-trace',
+        screenshot: 'only-on-failure',
         video: 'on-first-retry',
         headless: process.env.HEADLESS === 'false' ? false : true,
+        ignoreHTTPSErrors: true, // Crucial for Docker-internal networking
     },
 
     projects: [
@@ -53,7 +54,17 @@ export default defineConfig({
         },
         {
             name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
+            use: {
+                ...devices['Desktop Firefox'],
+                launchOptions: {
+                    firefoxUserPrefs: {
+                        // Deaktiviert den HTTPS-Zwang, um SSL_ERROR_UNKNOWN in Docker-Netzwerken zu vermeiden
+                        'dom.security.https_only_mode': false,
+                        // Verhindert DNS-Fehler in Docker-Containern ohne IPv6-Unterstützung
+                        'network.dns.disableIPv6': true,
+                    },
+                },
+            },
         },
         ...(process.env.SKIP_WEBKIT ? [] : [
             {
