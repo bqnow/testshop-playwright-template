@@ -38,8 +38,8 @@ test.describe('Checkout Form Validation (Frontend)', () => {
         test(`Ensure browser blocks: ${scenario.testName}`, async ({ shopPage, cartPage, loggedInPage }) => {
 
             // 1. Prepare Cart
-            await shopPage.filterByCategory(PRODUCTS.laptop.category);
-            await shopPage.addProductDirectlyToCart(PRODUCTS.laptop.id);
+            await shopPage.filterByCategory(PRODUCTS.headphones.category);
+            await shopPage.addProductDirectlyToCart(PRODUCTS.headphones.id);
 
             await cartPage.goto();
             await cartPage.proceedToCheckout();

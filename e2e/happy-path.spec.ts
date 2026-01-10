@@ -14,8 +14,8 @@ test.describe('E2E Checkout Flow', () => {
 
         // 1. Search and Find Product
         await test.step('Search and select product', async () => {
-            await shopPage.filterByCategory(PRODUCTS.laptop.category);
-            await shopPage.openProductDetails(PRODUCTS.laptop.id);
+            await shopPage.filterByCategory(PRODUCTS.headphones.category);
+            await shopPage.openProductDetails(PRODUCTS.headphones.id);
         });
 
         // 2. Add to Cart
@@ -26,8 +26,9 @@ test.describe('E2E Checkout Flow', () => {
         // 3. Checkout with Dynamic Data
         await test.step('Checkout with dynamic user data', async () => {
             await cartPage.goto();
-            await cartPage.increaseQuantity(PRODUCTS.laptop.id);
-            await cartPage.checkTotal(PRODUCTS.laptop.id, PRODUCTS.laptop.price);
+            await cartPage.increaseQuantity(PRODUCTS.headphones.id);
+            await cartPage.checkTotal(PRODUCTS.headphones.id, PRODUCTS.headphones.price);
+
 
             await cartPage.proceedToCheckout();
 
