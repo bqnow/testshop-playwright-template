@@ -24,69 +24,45 @@ dotenv.config({ path: path.resolve(configDir, '.env') });
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-    testDir: '.', // Tests are now relative to this config file
-    outputDir: './reporting/test-results', // Store artifacts here
-    /* Run tests in files in parallel */
+    testDir: './e2e',
+    outputDir: './reporting/test-results',
     fullyParallel: true,
-    /* Fail the build on CI if you accidentally left test.only in the source code. */
     forbidOnly: !!process.env.CI,
-    /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
-    /* Opt out of parallel tests on CI. */
     workers: process.env.CI ? 2 : undefined,
-    /* Reporter to use. See https://playwright.dev/docs/test-reporters */
     reporter: [
         ['html', { outputFolder: 'reporting/playwright', title: 'TestShop E2E Test Results', open: 'never' }],
         ['allure-playwright', {
             detail: true,
-            resultsDir: 'tests/reporting/allure-results',
+            resultsDir: 'reporting/allure-results',
             suiteTitle: false
         }]
     ],
-    /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
-        /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: process.env.BASE_URL || 'http://localhost:3000',
-
-        /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
-        screenshot: 'only-on-failure',
-        video: 'retain-on-failure',
-        /* Run headless by default. Use HEADLESS=false to run headed */
+        screenshot: 'attempt-with-trace',
+        video: 'on-first-retry',
         headless: process.env.HEADLESS === 'false' ? false : true,
     },
 
-    /* Configure projects for major browsers */
     projects: [
         {
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
         },
-
         {
             name: 'firefox',
             use: { ...devices['Desktop Firefox'] },
         },
-
-        // WebKit can be skipped in Docker (unstable), but runs fine in GitHub Actions
         ...(process.env.SKIP_WEBKIT ? [] : [
             {
                 name: 'webkit',
-                use: {
-                    ...devices['Desktop Safari'],
-                    // WebKit in Docker needs special flags
-                    launchOptions: {
-                        args: [
-                            '--disable-dev-shm-usage', // Use /tmp instead of /dev/shm
-                            '--disable-gpu', // GPU not available in containers
-                        ],
-                    },
-                },
+                use: { ...devices['Desktop Safari'] },
             },
         ]),
         /* 
-         * BrowserStack Multi-Browser Grid:
-         * Generiert dynamisch Projekte für verschiedene Browser/OS Kombinationen.
+         * BrowserStack Multi-Browser Grid
          */
         ...(process.env.BROWSERSTACK_USERNAME ? [
             { browser: 'chrome', os: 'Windows', os_version: '11', name: 'bs_windows_chrome' },
@@ -110,13 +86,8 @@ export default defineConfig({
         })) : []),
     ],
 
-    /* Run local dev server only when testing against localhost */
-    webServer: (process.env.BASE_URL && !process.env.BASE_URL.includes('localhost'))
-        ? undefined
-        : {
-            command: process.env.CI ? 'npm run start' : 'npm run dev',
-            url: 'http://localhost:3000',
-            reuseExistingServer: !process.env.CI,
-            cwd: '..', // Execute npm command from project root
-        },
+    /* 
+     * In the standalone template, we don't start a local server by default.
+     * Consultants should test against the Docker container or the Vercel URL.
+     */
 });
