@@ -14,7 +14,7 @@ export class CartPage extends BasePage {
     }
 
     async goto() {
-        // Use 'domcontentloaded' to tolerate potential redirects in WebKit
+        // Nutzt 'domcontentloaded', um potenzielle Redirects in WebKit abzufangen
         await this.page.goto('/cart', { waitUntil: 'domcontentloaded' });
     }
 
@@ -70,7 +70,7 @@ export class CartPage extends BasePage {
     async verifyOrderSuccess() {
         await expect(this.orderSuccessMessage).toBeVisible();
 
-        // Validate Order ID format: ORDER-{13-digit timestamp}
+        // Validierung des Order-ID Formats: ORDER-{13-stelliger Timestamp}
         const orderIdElement = this.page.locator('text=/ORDER-\\d{13}/');
         await expect(orderIdElement).toBeVisible();
     }

@@ -2,11 +2,11 @@ node_modules/
 reporting/
 test-results/
 
-# Private overrides stay ignored
+# Lokale Overrides bleiben ignoriert
 config/.env.local
 .env.local
 
-# Visual Testing: Track baselines, ignore artifacts
+# Visuelles Testen: Baselines erfassen, Artefakte ignorieren
 *-actual.png
 *-diff.png
 test-results/

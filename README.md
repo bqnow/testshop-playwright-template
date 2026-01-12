@@ -18,14 +18,14 @@ Willkommen im offiziellen Test-Framework für die TestShop Applikation. Dieses R
 
 Dieses Template deckt 6 definierte Requirements ab. Details findest du in [REQUIREMENTS.md](REQUIREMENTS.md).
 
-| Requirement | Test File | Type |
+| **Anforderung (ID)** | **Test-Datei** | **Kategorie** |
 | :--- | :--- | :--- |
-| **REQ-001: Authentication** | `e2e/smoke.spec.ts` | Functional (Smoke) |
-| **REQ-002: Happy Path** | `e2e/happy-path.spec.ts` | Functional (E2E) |
-| **REQ-003: Form Validation** | `e2e/checkout-validation.spec.ts` | Functional (Negative) |
-| **REQ-004: Error Handling** | `e2e/edge-cases.spec.ts` | Functional (Edge) |
-| **REQ-005: Visual Regression** | `e2e/visual.spec.ts` | Non-Functional |
-| **REQ-006: State Persistence** | `e2e/api-optimization-showcase.spec.ts` | Non-Functional |
+| **REQ-001: Authentifizierung** | `e2e/smoke.spec.ts` | Funktional (Smoke) |
+| **REQ-002: Happy Path** | `e2e/happy-path.spec.ts` | Funktional (E2E) |
+| **REQ-003: Formular Validierung** | `e2e/checkout-validation.spec.ts` | Funktional (Negativ) |
+| **REQ-004: Fehlerbehandlung** | `e2e/edge-cases.spec.ts` | Funktional (Edge) |
+| **REQ-005: Visuelle Regression** | `e2e/visual.spec.ts` | Nicht-Funktional |
+| **REQ-006: State Persistence** | `e2e/api-optimization-showcase.spec.ts` | Nicht-Funktional |
 
 ---
 

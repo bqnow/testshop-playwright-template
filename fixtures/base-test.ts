@@ -4,7 +4,7 @@ import { ShopPage } from '../pages/ShopPage';
 import { ProductDetailPage } from '../pages/ProductDetailPage';
 import { CartPage } from '../pages/CartPage';
 
-// Declare the types of your fixtures.
+// Deklaration der Fixture-Typen.
 type MyFixtures = {
     loginPage: LoginPage;
     shopPage: ShopPage;
@@ -13,8 +13,8 @@ type MyFixtures = {
     loggedInPage: void;
 };
 
-// Extend base test
-// This new "test" can be used in multiple test files, and each of them will get the fixtures.
+// Erweitere den Basis-Test
+// Dieser neue "test" kann in mehreren Testdateien verwendet werden, und jeder erhält die Fixtures.
 export const test = base.extend<MyFixtures>({
     loginPage: async ({ page }, use) => {
         await use(new LoginPage(page));
@@ -32,7 +32,7 @@ export const test = base.extend<MyFixtures>({
         await use(new CartPage(page));
     },
 
-    // A fixture that provides a pre-logged-in state
+    // Eine Fixture, die einen bereits eingeloggten Zustand bereitstellt
     loggedInPage: async ({ loginPage }, use) => {
         await loginPage.goto();
         await loginPage.login(

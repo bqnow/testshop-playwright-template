@@ -18,7 +18,7 @@ export class ShopPage extends BasePage {
     async searchProduct(term: string) {
         await this.searchInput.fill(term);
         await this.searchButton.click();
-        // Wait for the URL to update or results to load (optional but good practice)
+        // Warten, bis URL aktualisiert oder Ergebnisse geladen sind (optional)
         await this.page.waitForURL(/query=/);
     }
 
@@ -27,7 +27,7 @@ export class ShopPage extends BasePage {
     }
 
     /**
-     * Clicks on a product card to navigate to its detail page.
+     * Klickt auf eine Produktkarte, um zur Detailseite zu navigieren.
      */
     async openProductDetails(productId: string) {
         const card = this.page.getByTestId(`product-card-${productId}`);
@@ -35,9 +35,9 @@ export class ShopPage extends BasePage {
     }
 
     /**
-     * Adds a product directly from the list view (if supported) 
-     * OR assumes clicking the card.
-     * Based on the component, there is a direct 'add-to-cart-{id}' button.
+     * Fügt ein Produkt direkt aus der Listenansicht hinzu (falls unterstützt)
+     * ODER nimmt an, dass auf die Karte geklickt wird.
+     * Basierend auf der Komponente gibt es einen direkten 'add-to-cart-{id}' Button.
      */
     async addProductDirectlyToCart(productId: string) {
         await this.page.getByTestId(`add-to-cart-${productId}`).click();
