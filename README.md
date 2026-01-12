@@ -16,7 +16,7 @@ Willkommen im offiziellen Test-Framework für die TestShop Applikation. Dieses R
 
 ## � Requirements Coverage
 
-Dieses Template deckt 5 definierte Requirements ab. Details findest du in [REQUIREMENTS.md](REQUIREMENTS.md).
+Dieses Template deckt 6 definierte Requirements ab. Details findest du in [REQUIREMENTS.md](REQUIREMENTS.md).
 
 | Requirement | Test File | Type |
 | :--- | :--- | :--- |
