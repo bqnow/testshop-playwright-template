@@ -1,15 +1,14 @@
-name: Playwright E2E Tests (Standalone)
+name: Verify Test Code (Local Docker)
 
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  repository_dispatch:
-    types: [app-update]
 
 jobs:
   test:
+    name: "Run Tests against App Container"
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -27,17 +26,16 @@ jobs:
         # Diese Secrets müssen in den GitHub Organization Secrets hinterlegt sein (bqnow)
         TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
         TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        # Nutzt den dynamischen Tag aus dem Event (oder 'latest' als Fallback)
-        SHOP_IMAGE_TAG: ${{ github.event.client_payload.image_tag || 'latest' }}
-        # Nutzt die übergebene URL oder Staging-Default
-        BASE_URL: ${{ github.event.client_payload.base_url || 'https://testshop-dusky.vercel.app' }}
-        TEST_ENV: ${{ github.event.client_payload.environment || 'staging' }}
+        # TEST-KONZEPT: Wir laden das aktuellste Image der App aus GHCR 
+        # und testen die lokalen Tests dagegen.
+        BASE_URL: http://app:3000
+        SHOP_IMAGE_TAG: latest
       run: docker compose up --build --exit-code-from playwright
 
-    - name: Upload Reporting Artifacts
-      if: always() # Auch bei fehlgeschlagenen Tests ausführen
+    - name: Upload Playwright Report
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: reporting-artifacts
+        name: playwright-report
         path: reporting/
-        retention-days: 30
+        retention-days: 7
