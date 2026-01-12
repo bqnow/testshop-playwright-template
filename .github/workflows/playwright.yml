@@ -21,6 +21,10 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run Tests in Docker
+      env:
+        # These secrets are Organization secrets in Github
+        TEST_USER_NAME: ${{ secrets.TEST_USER_NAME }}
+        TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       run: docker compose up --build --exit-code-from playwright
 
     - name: Upload Reporting Artifacts

@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker';
 
 test.describe('E2E Checkout Flow', () => {
 
-    // notice 'loggedInPage' fixture -> it runs the login logic BEFORE the test body starts!
+    // Beachte 'loggedInPage' Fixture -> führt Login-Logik VOR dem Test-Body aus!
     test('Standard Customer Journey (Happy Path)', async ({
         shopPage,
         productDetailPage,
@@ -12,27 +12,27 @@ test.describe('E2E Checkout Flow', () => {
         loggedInPage
     }) => {
 
-        // 1. Search and Find Product
+        // 1. Suchen und Produkt finden
         await test.step('Search and select product', async () => {
             await shopPage.filterByCategory(PRODUCTS.headphones.category);
             await shopPage.openProductDetails(PRODUCTS.headphones.id);
         });
 
-        // 2. Add to Cart
+        // 2. Zum Warenkorb hinzufügen
         await test.step('Add product to cart', async () => {
             await productDetailPage.addToCart();
         });
 
-        // 3. Checkout with Dynamic Data
+        // 3. Checkout mit dynamischen Daten
         await test.step('Checkout with dynamic user data', async () => {
             await cartPage.goto();
             await cartPage.increaseQuantity(PRODUCTS.headphones.id);
-            await cartPage.checkTotal(PRODUCTS.headphones.id, PRODUCTS.headphones.price);
+            await cartPage.checkTotal(PRODUCTS.headphones.id, PRODUCTS.headphones.price.toString());
 
 
             await cartPage.proceedToCheckout();
 
-            // Generate valid fake data for every run! 
+            // Generiere gültige Fake-Daten für jeden Testlauf!
             const fakeUser = {
                 fullName: faker.person.fullName(),
                 address: faker.location.streetAddress(),

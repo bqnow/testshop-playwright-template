@@ -3,21 +3,22 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 /**
- * Read environment variables from file.
- * We use `dotenv` to load vars. The RULE is: "First one wins".
- *
- * Load Priority (Hierarchy):
- * 1. Shell/CLI (e.g. `TEST_ENV=qa npm run test`) -> Highest Priority
- * 2. .env.{TEST_ENV} (e.g. `.env.qa`) -> Environment specific
- * 3. .env.local -> Local developer overrides (ignored by git)
- * 4. .env -> Default values for everyone
+ * Environment Configuration:
+ * We load variables from .env files using a "Priority wins" approach.
+ * Once a variable is set (by CLI or an earlier file), it won't be overridden.
+ * Priority: 1. CLI/Environment, 2. .env.local, 3. .env.{stage}, 4. .env
  */
 const configDir = path.resolve(__dirname, 'config');
 
+// 1. Load local overrides first so they win
+dotenv.config({ path: path.resolve(configDir, '.env.local') });
+
+// 2. Load environment-specific file
 if (process.env.TEST_ENV) {
     dotenv.config({ path: path.resolve(configDir, `.env.${process.env.TEST_ENV}`) });
 }
-dotenv.config({ path: path.resolve(configDir, '.env.local') });
+
+// 3. Load default values as fallback
 dotenv.config({ path: path.resolve(configDir, '.env') });
 
 /**
@@ -45,6 +46,15 @@ export default defineConfig({
         video: 'on-first-retry',
         headless: process.env.HEADLESS === 'false' ? false : true,
         ignoreHTTPSErrors: true, // Crucial for Docker-internal networking
+    },
+
+    // Visual Regression Testing Configuration
+    expect: {
+        toHaveScreenshot: {
+            maxDiffPixels: 100,        // Allow minor rendering differences
+            threshold: 0.2,             // 20% threshold for pixel differences
+            animations: 'disabled',     // Disable animations for stable screenshots
+        },
     },
 
     projects: [
@@ -96,9 +106,4 @@ export default defineConfig({
             },
         })) : []),
     ],
-
-    /* 
-     * In the standalone template, we don't start a local server by default.
-     * Consultants should test against the Docker container or the Vercel URL.
-     */
 });

@@ -69,5 +69,9 @@ export class CartPage extends BasePage {
 
     async verifyOrderSuccess() {
         await expect(this.orderSuccessMessage).toBeVisible();
+
+        // Validate Order ID format: ORDER-{13-digit timestamp}
+        const orderIdElement = this.page.locator('text=/ORDER-\\d{13}/');
+        await expect(orderIdElement).toBeVisible();
     }
 }

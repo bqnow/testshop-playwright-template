@@ -3,7 +3,6 @@ import { LoginPage } from '../pages/LoginPage';
 import { ShopPage } from '../pages/ShopPage';
 import { ProductDetailPage } from '../pages/ProductDetailPage';
 import { CartPage } from '../pages/CartPage';
-import { TEST_CONFIG } from '../config/test-config';
 
 // Declare the types of your fixtures.
 type MyFixtures = {
@@ -36,8 +35,10 @@ export const test = base.extend<MyFixtures>({
     // A fixture that provides a pre-logged-in state
     loggedInPage: async ({ loginPage }, use) => {
         await loginPage.goto();
-        // Use credentials from loaded environment config
-        await loginPage.login(TEST_CONFIG.auth.username, TEST_CONFIG.auth.password);
+        await loginPage.login(
+            process.env.TEST_USER_NAME!,
+            process.env.TEST_USER_PASSWORD!
+        );
         await use();
     },
 });

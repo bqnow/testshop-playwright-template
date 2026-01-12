@@ -10,13 +10,13 @@ test.describe('E2E Edge Cases & Error Handling', () => {
         loggedInPage
     }) => {
 
-        // 1. Add Buggy Product to Cart
+        // 1. Buggy Product zum Warenkorb hinzufügen
         await test.step('Add buggy product', async () => {
             await shopPage.searchProduct(PRODUCTS.buggyValues.name);
             await shopPage.addProductDirectlyToCart(PRODUCTS.buggyValues.id);
         });
 
-        // 2. Checkout
+        // 2. Checkout versuchen
         await test.step('Attempt checkout', async () => {
             await cartPage.goto();
             await cartPage.proceedToCheckout();
@@ -31,11 +31,11 @@ test.describe('E2E Edge Cases & Error Handling', () => {
 
             await cartPage.fillShippingDetails(fakeUser);
 
-            // Expect the specific server error from actions.ts
+            // Erwarte den spezifischen Server-Error aus actions.ts
             await cartPage.submitOrderExpectingError('Internal Server Error');
         });
 
-        // 3. Verify App Stability
+        // 3. App-Stabilität validieren
         await test.step('Verify app is still usable', async () => {
             await expect(cartPage.submitOrderButton).toBeVisible();
 

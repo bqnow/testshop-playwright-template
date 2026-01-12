@@ -3,4 +3,10 @@ reporting/
 test-results/
 
 # Private overrides stay ignored
+config/.env.local
 .env.local
+
+# Visual Testing: Track baselines, ignore artifacts
+*-actual.png
+*-diff.png
+test-results/
