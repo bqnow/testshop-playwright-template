@@ -29,6 +29,9 @@ jobs:
         TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         # Nutzt den dynamischen Tag aus dem Event (oder 'latest' als Fallback)
         SHOP_IMAGE_TAG: ${{ github.event.client_payload.image_tag || 'latest' }}
+        # Nutzt die übergebene URL oder Staging-Default
+        BASE_URL: ${{ github.event.client_payload.base_url || 'https://testshop-dusky.vercel.app' }}
+        TEST_ENV: ${{ github.event.client_payload.environment || 'staging' }}
       run: docker compose up --build --exit-code-from playwright
 
     - name: Upload Reporting Artifacts
