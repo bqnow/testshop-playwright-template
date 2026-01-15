@@ -78,20 +78,27 @@ class GrafanaReporter implements Reporter {
         console.log('📦 Payload (Loki JSON):');
         console.log(JSON.stringify(lokiPayload, null, 2));
         console.log('\n----------------------------------------\n');
+        // Echter Fetch Code (aktiviert):
+        if (process.env.GRAFANA_LOKI_URL && process.env.GRAFANA_LOKI_USER && process.env.GRAFANA_LOKI_KEY) {
+            try {
+                console.log('📡 Sending metrics to Grafana Loki...');
+                const auth = Buffer.from(process.env.GRAFANA_LOKI_USER + ':' + process.env.GRAFANA_LOKI_KEY).toString('base64');
 
-        // Echter Fetch Code (auskommentiert):
-        /*
-        if (process.env.GRAFANA_LOKI_URL && process.env.GRAFANA_LOKI_USER) {
-            await fetch(process.env.GRAFANA_LOKI_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Basic ' + Buffer.from(process.env.GRAFANA_LOKI_USER + ':' + process.env.GRAFANA_LOKI_KEY).toString('base64')
-                },
-                body: JSON.stringify(lokiPayload)
-            });
+                await fetch(process.env.GRAFANA_LOKI_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + auth
+                    },
+                    body: JSON.stringify(lokiPayload)
+                });
+                console.log('✅ Metrics sent successfully!');
+            } catch (error) {
+                console.error('❌ Failed to send metrics to Grafana:', error);
+            }
+        } else {
+            console.warn('⚠️ Grafana env vars missing. Skipping upload.');
         }
-        */
     }
 }
 
