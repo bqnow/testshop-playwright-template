@@ -78,6 +78,11 @@ class GrafanaReporter implements Reporter {
         console.log('📦 Payload (Loki JSON):');
         console.log(JSON.stringify(lokiPayload, null, 2));
         console.log('\n----------------------------------------\n');
+        console.log('\n🔍 DEBUG: Environment Variables Check:');
+        console.log(`- GRAFANA_LOKI_URL: ${process.env.GRAFANA_LOKI_URL ? '✅ Defined' : '❌ MISSING'}`);
+        console.log(`- GRAFANA_LOKI_USER: ${process.env.GRAFANA_LOKI_USER ? '✅ Defined' : '❌ MISSING'}`);
+        console.log(`- GRAFANA_LOKI_KEY: ${process.env.GRAFANA_LOKI_KEY ? '✅ Defined' : '❌ MISSING'}`);
+
         // Echter Fetch Code (aktiviert):
         if (process.env.GRAFANA_LOKI_URL && process.env.GRAFANA_LOKI_USER && process.env.GRAFANA_LOKI_KEY) {
             try {
