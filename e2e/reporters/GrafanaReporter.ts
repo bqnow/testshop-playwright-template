@@ -89,7 +89,7 @@ class GrafanaReporter implements Reporter {
                 console.log('📡 Sending metrics to Grafana Loki...');
                 const auth = Buffer.from(process.env.GRAFANA_LOKI_USER + ':' + process.env.GRAFANA_LOKI_KEY).toString('base64');
 
-                await fetch(process.env.GRAFANA_LOKI_URL, {
+                const response = await fetch(process.env.GRAFANA_LOKI_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -97,7 +97,15 @@ class GrafanaReporter implements Reporter {
                     },
                     body: JSON.stringify(lokiPayload)
                 });
-                console.log('✅ Metrics sent successfully!');
+
+                console.log(`📡 Response Status: ${response.status} ${response.statusText}`);
+
+                if (response.ok) {
+                    console.log('✅ Metrics sent successfully!');
+                } else {
+                    const errorBody = await response.text();
+                    console.error(`❌ Grafana API Error (${response.status}):`, errorBody);
+                }
             } catch (error) {
                 console.error('❌ Failed to send metrics to Grafana:', error);
             }
