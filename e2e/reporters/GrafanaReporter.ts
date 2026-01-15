@@ -1,92 +1,96 @@
 
 import { Reporter, FullConfig, Suite, TestCase, TestResult, FullResult } from '@playwright/test/reporter';
-import * as fs from 'fs';
-import * as path from 'path';
+
+interface TestDetails {
+    title: string;
+    browser: string;
+    status: string;
+    duration: number;
+    error?: string;
+    timestamp: number;
+}
 
 /**
- * Grafana Showcase Reporter
+ * Grafana Per-Test Reporter
  * 
- * Demonstration einer Integration von Playwright Tests in Grafana.
- * Zeigt, wie Test-Metriken (Dauer, Status, Fehlschläge) gesammelt 
- * und an einen Collector (z.B. Loki oder Prometheus Pushgateway) gesendet würden.
+ * Sends detailed metrics for each individual test to Grafana Loki.
+ * Enables granular dashboards showing:
+ * - Per-test pass/fail rates
+ * - Slowest tests
+ * - Flaky tests
+ * - Browser-specific failures
  */
 class GrafanaReporter implements Reporter {
+    private tests: TestDetails[] = [];
 
     onBegin(config: FullConfig, suite: Suite) {
         console.log(`\n[GrafanaReporter] 🚀 Starting test run with ${suite.allTests().length} tests`);
     }
 
     onTestEnd(test: TestCase, result: TestResult) {
-        // Hier könnten wir individuelle Test-Metriken senden (Streaming)
-        // console.log(`[GrafanaReporter] Finished test ${test.title}: ${result.status}`);
+        // Extract browser from project name (e.g., "chromium", "firefox", "webkit")
+        const browser = test.parent.project()?.name || 'unknown';
+
+        // Collect test details
+        const testDetail: TestDetails = {
+            title: test.title,
+            browser: browser,
+            status: result.status, // 'passed', 'failed', 'skipped', 'timedout'
+            duration: result.duration,
+            error: result.error?.message,
+            timestamp: Date.now()
+        };
+
+        this.tests.push(testDetail);
     }
 
     async onEnd(result: FullResult) {
         console.log(`\n[GrafanaReporter] 🏁 Test run finished with status: ${result.status}`);
+        console.log(`[GrafanaReporter] 📊 Collected ${this.tests.length} test results`);
 
-        // 1. Metriken sammeln
-        const stats = {
-            status: result.status, // 'passed', 'failed', 'timedout', 'interrupted'
-            startTime: result.startTime,
-            duration: result.duration,
-            timestamp: new Date().toISOString(),
-            metrics: {
-                total: 0,
-                passed: 0,
-                failed: 0,
-                skipped: 0,
-            }
-        };
-
-        // Rekursive Funktion um Ergebnisse zu zählen (da 'result' hier nur High-Level ist, müssten wir eigentlich 'suite' traversieren)
-        // Vereinfachung für Showcase: Wir nutzen die High-Level Result Summen, wenn verfügbar, oder fake logging.
-        // Echte Lösung: Wir würden 'suite' aus onBegin speichern und hier traversieren.
-
-        // Simulierter Payload für Grafana Loki (Logs)
+        // Build Loki payload with individual test entries
         const lokiPayload = {
-            streams: [
-                {
-                    stream: {
-                        app: 'testshop-e2e',
-                        environment: process.env.TEST_ENV || 'local',
-                        kind: 'test_report'
-                    },
-                    values: [
-                        [
-                            String(Date.now() * 1000000), // Nanoseconds timestamp
-                            JSON.stringify({
-                                event: 'test_run_completed',
-                                status: result.status,
-                                duration_ms: result.duration,
-                                user: process.env.USER || 'ci-runner'
-                            })
-                        ]
+            streams: this.tests.map(test => ({
+                stream: {
+                    app: 'testshop-e2e',
+                    environment: process.env.TEST_ENV || 'local',
+                    kind: 'test_result',  // Changed from 'test_report' to 'test_result' for per-test data
+                    test_name: test.title,
+                    browser: test.browser,
+                    status: test.status
+                },
+                values: [
+                    [
+                        String(test.timestamp * 1000000), // Nanoseconds timestamp
+                        JSON.stringify({
+                            event: 'test_completed',
+                            test_name: test.title,
+                            browser: test.browser,
+                            status: test.status,
+                            duration_ms: test.duration,
+                            error: test.error || null,
+                            user: process.env.USER || 'ci-runner'
+                        })
                     ]
-                }
-            ]
+                ]
+            }))
         };
 
-        // Simulierter Payload für InfluxDB / Prometheus (Metrics)
-        const metricsPayload = `test_run_duration,env=${process.env.TEST_ENV || 'local'},status=${result.status} value=${result.duration}`;
-
-        // Showcase Output
+        // Showcase Output (only show first 3 tests to avoid spam)
         console.log('\n----------------------------------------');
-        console.log('📊 GRAFANA INTEGRATION SHOWCASE');
+        console.log('📊 GRAFANA PER-TEST METRICS');
         console.log('----------------------------------------');
-        console.log('Wenn eine Grafana URL konfiguriert wäre, würden wir folgenden Request senden:');
-        console.log('\n➡️  Target: POST https://logs-prod-eu-west-0.grafana.net/loki/api/v1/push');
-        console.log('📦 Payload (Loki JSON):');
-        console.log(JSON.stringify(lokiPayload, null, 2));
-        console.log('\n----------------------------------------\n');
-        console.log('\n🔍 DEBUG: Environment Variables Check:');
-        console.log(`- GRAFANA_LOKI_URL: ${process.env.GRAFANA_LOKI_URL ? '✅ Defined' : '❌ MISSING'}`);
-        console.log(`- GRAFANA_LOKI_USER: ${process.env.GRAFANA_LOKI_USER ? '✅ Defined' : '❌ MISSING'}`);
-        console.log(`- GRAFANA_LOKI_KEY: ${process.env.GRAFANA_LOKI_KEY ? '✅ Defined' : '❌ MISSING'}`);
+        console.log(`Sending ${this.tests.length} individual test results to Grafana Loki`);
+        console.log('\nSample (first 3 tests):');
+        this.tests.slice(0, 3).forEach((test, i) => {
+            console.log(`  ${i + 1}. ${test.title} [${test.browser}]: ${test.status} (${test.duration}ms)`);
+        });
+        console.log('----------------------------------------\n');
 
-        // Echter Fetch Code (aktiviert):
+        // Send to Grafana
         if (process.env.GRAFANA_LOKI_URL && process.env.GRAFANA_LOKI_USER && process.env.GRAFANA_LOKI_KEY) {
             try {
-                console.log('📡 Sending metrics to Grafana Loki...');
+                console.log(`📡 Sending ${this.tests.length} test metrics to Grafana Loki...`);
                 const auth = Buffer.from(process.env.GRAFANA_LOKI_USER + ':' + process.env.GRAFANA_LOKI_KEY).toString('base64');
 
                 const response = await fetch(process.env.GRAFANA_LOKI_URL, {
@@ -98,16 +102,11 @@ class GrafanaReporter implements Reporter {
                     body: JSON.stringify(lokiPayload)
                 });
 
-                console.log(`📡 Response Status: ${response.status} ${response.statusText}`);
-                console.log(`URL: ${process.env.GRAFANA_LOKI_URL}`);
-                console.log(`User: ${process.env.GRAFANA_LOKI_USER}`);
-                console.log(`Key: ${process.env.GRAFANA_LOKI_KEY}`);
-
                 if (response.ok) {
-                    console.log('✅ Metrics sent successfully!');
+                    console.log(`✅ Successfully sent ${this.tests.length} test results to Grafana!`);
                 } else {
                     const errorBody = await response.text();
-                    console.error(`❌ Grafana API Error(${response.status}): `, errorBody);
+                    console.error(`❌ Grafana API Error (${response.status}):`, errorBody);
                 }
             } catch (error) {
                 console.error('❌ Failed to send metrics to Grafana:', error);
