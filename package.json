@@ -4,6 +4,7 @@
     "private": true,
     "description": "Standalone Playwright E2E Test Suite for TestShop",
     "scripts": {
+        "test": "npm run test:e2e",
         "play": "playwright test",
         "app:up": "docker compose up -d app",
         "app:down": "docker compose down",
